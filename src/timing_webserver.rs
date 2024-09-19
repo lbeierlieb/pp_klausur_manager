@@ -1,9 +1,12 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    sync::{Arc, Mutex},
+    thread,
+};
 
 use tiny_http::{Header, Response, Server};
 
 pub fn start_webserver_thread(time: Arc<Mutex<Option<i64>>>) {
-    webserver(time);
+    thread::spawn(|| webserver(time));
 }
 
 fn webserver(time: Arc<Mutex<Option<i64>>>) {
@@ -34,7 +37,11 @@ fn webserver(time: Arc<Mutex<Option<i64>>>) {
 }
 
 fn generate_html(time: Option<i64>) -> String {
-    let time = time.unwrap_or(-1);
+    let target_time = time.unwrap_or(-1);
+    let refresh_delay = match time {
+        Some(_) => 30,
+        None => 3,
+    };
     format!(
         r#"
         <!DOCTYPE html>
@@ -42,7 +49,7 @@ fn generate_html(time: Option<i64>) -> String {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta http-equiv="refresh" content="30">
+            <meta http-equiv="refresh" content="{}">
             <title>.</title>
             <style>
                 body {{
@@ -92,6 +99,6 @@ fn generate_html(time: Option<i64>) -> String {
         </body>
         </html>
         "#,
-        time
+        refresh_delay, target_time
     )
 }
