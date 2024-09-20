@@ -4,6 +4,7 @@ use std::net::Ipv4Addr;
 pub struct Client {
     pub ip_address: Ipv4Addr,
     pub is_online: bool,
+    pub current_layer: Option<String>,
 }
 
 impl Client {
@@ -11,6 +12,7 @@ impl Client {
         Client {
             ip_address: ip,
             is_online: false,
+            current_layer: None,
         }
     }
 }

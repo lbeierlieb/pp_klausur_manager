@@ -179,6 +179,11 @@ fn render_clients(app: &App, area: Rect, buf: &mut Buffer) {
                     "offline  ".red()
                 },
                 client.ip_address.to_string().into(),
+                "   ".into(),
+                match &client.current_layer {
+                    Some(layer) => format!("switched keyboard to \"{}\" last time", layer).into(),
+                    None => "keyboard never changed".into(),
+                },
             ])
         })
         .collect::<Vec<_>>();
