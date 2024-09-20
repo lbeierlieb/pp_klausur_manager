@@ -1,7 +1,4 @@
-use std::{
-    net::Ipv4Addr,
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 
 use chrono::{DateTime, Duration, Utc};
 
@@ -14,9 +11,9 @@ pub struct SharedData {
 }
 
 impl SharedData {
-    pub fn new() -> Self {
+    pub fn new(clients: Vec<Client>) -> Self {
         SharedData {
-            clients: Arc::new(Mutex::new(vec![Client::new(Ipv4Addr::new(127, 0, 0, 1))])),
+            clients: Arc::new(Mutex::new(clients)),
             times: Arc::new(Mutex::new(None)),
         }
     }
