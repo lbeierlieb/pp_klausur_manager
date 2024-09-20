@@ -1,28 +1,23 @@
-use std::{
-    sync::{Arc, Mutex},
-    thread,
-};
+use std::thread;
 
 use tiny_http::{Header, Response, Server};
 
-pub fn start_webserver_thread(time: Arc<Mutex<Option<i64>>>) {
-    thread::spawn(|| webserver(time));
+use crate::shared_data::SharedData;
+
+pub fn start_webserver_thread(shared_data: SharedData) {
+    thread::spawn(|| webserver(shared_data));
 }
 
-fn webserver(time: Arc<Mutex<Option<i64>>>) {
+fn webserver(shared_data: SharedData) {
     // Create a new HTTP server and bind it to localhost:8080
     let server = Server::http("0.0.0.0:8080").unwrap();
-    println!("Listening on http://0.0.0.0:8080");
 
     for request in server.incoming_requests() {
-        // Log the received request
-        println!("Received request: {}", request.url());
-
-        // Match on the URL to handle different routes
         let response = match request.url() {
             "/" => {
-                let mut response =
-                    Response::from_data(generate_html(*time.lock().unwrap()).as_bytes());
+                let mut response = Response::from_data(
+                    generate_html(shared_data.finish_time_as_unix()).as_bytes(),
+                );
                 response.add_header(
                     Header::from_bytes(&b"Content-Type"[..], &b"text/html"[..]).unwrap(),
                 );
@@ -36,9 +31,9 @@ fn webserver(time: Arc<Mutex<Option<i64>>>) {
     }
 }
 
-fn generate_html(time: Option<i64>) -> String {
-    let target_time = time.unwrap_or(-1);
-    let refresh_delay = match time {
+fn generate_html(times: Option<i64>) -> String {
+    let target_time = times.unwrap_or(-1);
+    let refresh_delay = match times {
         Some(_) => 30,
         None => 3,
     };
@@ -77,7 +72,7 @@ fn generate_html(time: Option<i64>) -> String {
                 const countdown = setInterval(function() {{
                     let text = "";
 
-                    const now = new Date().getTime();
+                    const now = new Date().getTime() / 1000;
                     const distance = targetDate - now;
 
                     if (targetDate == -1) {{
@@ -85,11 +80,10 @@ fn generate_html(time: Option<i64>) -> String {
                     }} else if (distance < 0) {{
                         text = "time is up!";
                     }} else {{
-                        const minutes = Math.floor(distance / (1000 * 60));
-                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                        const minutes = Math.floor(distance / 60);
+                        const seconds = Math.floor((distance % 60));
                         text = minutes + "m " + seconds + "s";
                     }}
-
 
                     document.getElementById("countdown").innerHTML = text;
                     document.title = text;
