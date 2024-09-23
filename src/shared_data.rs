@@ -4,16 +4,16 @@ use chrono::{DateTime, Duration, Utc};
 
 use crate::client::Client;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct SharedData {
-    pub clients: Arc<Mutex<Vec<Client>>>,
+    pub clients: Vec<Client>,
     pub times: Arc<Mutex<Option<(DateTime<Utc>, Duration)>>>, // (start_time, finish_time)
 }
 
 impl SharedData {
     pub fn new(clients: Vec<Client>) -> Self {
         SharedData {
-            clients: Arc::new(Mutex::new(clients)),
+            clients,
             times: Arc::new(Mutex::new(None)),
         }
     }

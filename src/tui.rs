@@ -5,11 +5,11 @@ use ratatui::{
     symbols::border,
     widgets::{block::*, *},
 };
-use std::io;
+use std::{io, iter::repeat, sync::Arc};
 
 use crate::{shared_data::SharedData, tui_basic};
 
-pub fn tui_main(shared_data: SharedData) -> io::Result<()> {
+pub fn tui_main(shared_data: Arc<SharedData>) -> io::Result<()> {
     let mut terminal = tui_basic::init()?;
     let app_result = App::new(shared_data).run(&mut terminal);
     tui_basic::restore()?;
@@ -19,11 +19,11 @@ pub fn tui_main(shared_data: SharedData) -> io::Result<()> {
 #[derive(Debug)]
 pub struct App {
     exit: bool,
-    shared_data: SharedData,
+    shared_data: Arc<SharedData>,
 }
 
 impl App {
-    fn new(shared_data: SharedData) -> Self {
+    fn new(shared_data: Arc<SharedData>) -> Self {
         App {
             exit: false,
             shared_data,
@@ -168,22 +168,19 @@ fn render_clients(app: &App, area: Rect, buf: &mut Buffer) {
     let lines = app
         .shared_data
         .clients
-        .lock()
-        .unwrap()
         .iter()
         .map(|client| {
+            let client_status = match client.current_layer.lock().unwrap().as_ref() {
+                Some(layer) => layer.clone(),
+                None => "  ---".to_string(),
+            };
+            let padding_len = 10 - client_status.len();
+            let padding = repeat(' ').take(padding_len).collect::<String>();
             Line::from(vec![
-                if client.is_online {
-                    "online   ".green()
-                } else {
-                    "offline  ".red()
-                },
+                client_status.yellow(),
+                padding.into(),
                 client.ip_address.to_string().into(),
                 "   ".into(),
-                match &client.current_layer {
-                    Some(layer) => format!("switched keyboard to \"{}\" last time", layer).into(),
-                    None => "keyboard never changed".into(),
-                },
             ])
         })
         .collect::<Vec<_>>();

@@ -1,14 +1,14 @@
-use std::thread;
+use std::{sync::Arc, thread};
 
 use tiny_http::{Header, Response, Server};
 
 use crate::shared_data::SharedData;
 
-pub fn start_webserver_thread(shared_data: SharedData) {
+pub fn start_webserver_thread(shared_data: Arc<SharedData>) {
     thread::spawn(|| webserver(shared_data));
 }
 
-fn webserver(shared_data: SharedData) {
+fn webserver(shared_data: Arc<SharedData>) {
     // Create a new HTTP server and bind it to localhost:8080
     let server = Server::http("0.0.0.0:8080").unwrap();
 

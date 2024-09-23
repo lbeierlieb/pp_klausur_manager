@@ -1,18 +1,19 @@
-use std::net::Ipv4Addr;
+use std::{
+    net::Ipv4Addr,
+    sync::{Arc, Mutex},
+};
 
 #[derive(Debug)]
 pub struct Client {
     pub ip_address: Ipv4Addr,
-    pub is_online: bool,
-    pub current_layer: Option<String>,
+    pub current_layer: Arc<Mutex<Option<String>>>,
 }
 
 impl Client {
     pub fn new(ip: Ipv4Addr) -> Self {
         Client {
             ip_address: ip,
-            is_online: false,
-            current_layer: None,
+            current_layer: Arc::new(Mutex::new(None)),
         }
     }
 }
