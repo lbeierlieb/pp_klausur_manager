@@ -1,4 +1,4 @@
-use chrono::{Duration, Utc};
+use chrono::{Duration, Local, Utc};
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     prelude::*,
@@ -138,9 +138,15 @@ fn render_status(app: &App, area: Rect, buf: &mut Buffer) {
             let dur = duration - (Utc::now() - start_time);
             Line::from(vec![
                 "Start: ".into(),
-                start_time.format("%H:%M:%S").to_string().yellow().bold(),
+                start_time
+                    .with_timezone(&Local)
+                    .format("%H:%M:%S")
+                    .to_string()
+                    .yellow()
+                    .bold(),
                 "  Finish: ".into(),
                 (start_time + duration)
+                    .with_timezone(&Local)
                     .format("%H:%M:%S")
                     .to_string()
                     .yellow()
