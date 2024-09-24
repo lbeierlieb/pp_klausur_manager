@@ -209,7 +209,7 @@ fn render_clients(app: &App, area: Rect, buf: &mut Buffer) {
                             duration.num_seconds() % 60
                         )
                     }
-                    None => "haha".to_string(),
+                    None => " -".to_string(),
                 }
                 .into(),
             ])
