@@ -1,5 +1,6 @@
 use std::{sync::Arc, thread};
 
+use chrono::Utc;
 use tiny_http::{Header, Response, Server};
 
 use crate::shared_data::SharedData;
@@ -15,6 +16,15 @@ fn webserver(shared_data: Arc<SharedData>) {
     for request in server.incoming_requests() {
         let response = match request.url() {
             "/" => {
+                // store latest access in client
+                if let Some(std::net::SocketAddr::V4(sockaddr)) = request.remote_addr() {
+                    let remote_ip = sockaddr.ip();
+                    for client in &shared_data.clients {
+                        if client.ip_address.eq(remote_ip) {
+                            *client.last_timer_access.lock().unwrap() = Some(Utc::now());
+                        }
+                    }
+                }
                 let mut response = Response::from_data(
                     generate_html(shared_data.finish_time_as_unix()).as_bytes(),
                 );

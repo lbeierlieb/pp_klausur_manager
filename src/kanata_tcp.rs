@@ -1,6 +1,6 @@
 use std::{
     io::{Read, Write},
-    net::{SocketAddr, SocketAddrV4, TcpStream},
+    net::{Ipv4Addr, SocketAddr, SocketAddrV4, TcpStream},
     sync::Arc,
     thread,
     time::Duration,
@@ -17,6 +17,39 @@ const KANATA_PORT: u16 = 5000;
 const KANATA_TCP_TIMEOUT: Duration = Duration::new(1, 0);
 const KANATA_POLL_DELAY: Duration = Duration::new(2, 0);
 
+fn try_layer_change(ip: Ipv4Addr, layer: &str) {
+    let msg = format!("{{\"ChangeLayer\":{{\"new\":\"{}\"}}}}\n", layer);
+
+    match TcpStream::connect_timeout(
+        &SocketAddr::V4(SocketAddrV4::new(ip, KANATA_PORT)),
+        KANATA_TCP_TIMEOUT,
+    ) {
+        Ok(mut stream) => {
+            let mut buf = [0; 1024];
+            // read message from kanata first, otherwise it won't accept the command
+            let _ = stream.read(&mut buf);
+            let _ = stream.write(msg.as_bytes());
+        }
+        _ => {}
+    }
+}
+
+fn try_layer_change_all(shared_data: Arc<SharedData>, layer: &str) {
+    for client in &shared_data.clients {
+        let ip = client.ip_address;
+        let layer = layer.to_string();
+        thread::spawn(move || try_layer_change(ip, &layer));
+    }
+}
+
+pub fn enable_keyboards(shared_data: Arc<SharedData>) {
+    try_layer_change_all(shared_data, "enabled");
+}
+
+pub fn disable_keyboards(shared_data: Arc<SharedData>) {
+    try_layer_change_all(shared_data, "disabled");
+}
+
 fn get_current_layer(client: &Client) -> Option<String> {
     let mut stream = TcpStream::connect_timeout(
         &SocketAddr::V4(SocketAddrV4::new(client.ip_address, KANATA_PORT)),
@@ -26,6 +59,8 @@ fn get_current_layer(client: &Client) -> Option<String> {
 
     let mut buf = [0; 1024];
     stream.read(&mut buf).ok()?;
+    // write invalid message to disconnect from kanata - otherwise it accumulates connections
+    let _ = stream.write("{}".as_bytes());
     let msg_str = String::from_utf8_lossy(&buf);
     let msg_trim = msg_str.lines().next()?;
     let msg_json: Value = serde_json::from_str(&msg_trim).unwrap();

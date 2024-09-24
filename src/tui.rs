@@ -7,7 +7,11 @@ use ratatui::{
 };
 use std::{io, iter::repeat, sync::Arc};
 
-use crate::{shared_data::SharedData, tui_basic};
+use crate::{
+    kanata_tcp::{disable_keyboards, enable_keyboards},
+    shared_data::SharedData,
+    tui_basic,
+};
 
 pub fn tui_main(shared_data: Arc<SharedData>) -> io::Result<()> {
     let mut terminal = tui_basic::init()?;
@@ -75,6 +79,8 @@ impl App {
                     let now = Utc::now();
                     let duration = Duration::seconds(60 * 90);
                     *times = Some((now, duration));
+
+                    enable_keyboards(self.shared_data.clone());
                 }
             }
             KeyCode::Char('+') => {
@@ -90,6 +96,12 @@ impl App {
                     let (start_time, duration) = times.unwrap();
                     *times = Some((start_time, duration - Duration::minutes(1)))
                 }
+            }
+            KeyCode::Char(' ') => {
+                disable_keyboards(self.shared_data.clone());
+            }
+            KeyCode::Esc => {
+                enable_keyboards(self.shared_data.clone());
             }
             _ => {}
         }
@@ -154,7 +166,14 @@ fn render_status(app: &App, area: Rect, buf: &mut Buffer) {
 
 fn render_clients(app: &App, area: Rect, buf: &mut Buffer) {
     let title = Title::from(" Client Overview ".bold());
-    let instructions = Title::from(vec![" - ".into(), "<Tab> ".blue().bold()]);
+    let instructions = Title::from(vec![
+        " Quit ".into(),
+        "<q> ".blue().bold(),
+        "  Enable keys ".into(),
+        "<Escape> ".blue().bold(),
+        "  Disable keys ".into(),
+        "<Space> ".blue().bold(),
+    ]);
     let block = Block::default()
         .title(title.alignment(Alignment::Center))
         .title(
@@ -170,17 +189,29 @@ fn render_clients(app: &App, area: Rect, buf: &mut Buffer) {
         .clients
         .iter()
         .map(|client| {
-            let client_status = match client.current_layer.lock().unwrap().as_ref() {
-                Some(layer) => layer.clone(),
-                None => "  ---".to_string(),
-            };
-            let padding_len = 10 - client_status.len();
-            let padding = repeat(' ').take(padding_len).collect::<String>();
             Line::from(vec![
-                client_status.yellow(),
-                padding.into(),
-                client.ip_address.to_string().into(),
-                "   ".into(),
+                try_pad_string(
+                    match client.current_layer.lock().unwrap().as_ref() {
+                        Some(layer) => layer.clone(),
+                        None => "  ---".to_string(),
+                    },
+                    ' ',
+                    10,
+                )
+                .yellow(),
+                try_pad_string(client.ip_address.to_string(), ' ', 18).into(),
+                match client.last_timer_access.lock().unwrap().as_ref() {
+                    Some(last_access) => {
+                        let duration = Utc::now() - last_access;
+                        format!(
+                            "{}:{:02}min",
+                            duration.num_minutes(),
+                            duration.num_seconds() % 60
+                        )
+                    }
+                    None => "haha".to_string(),
+                }
+                .into(),
             ])
         })
         .collect::<Vec<_>>();
@@ -190,4 +221,13 @@ fn render_clients(app: &App, area: Rect, buf: &mut Buffer) {
         //.centered()
         .block(block)
         .render(area, buf);
+}
+
+fn try_pad_string(mut string: String, pad_char: char, desired_length: usize) -> String {
+    let pad_len = desired_length as isize - string.len() as isize;
+    if pad_len > 0 {
+        let padding = repeat(pad_char).take(pad_len as usize).collect::<String>();
+        string.push_str(&padding);
+    }
+    string
 }
