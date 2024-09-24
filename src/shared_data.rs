@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 use chrono::{DateTime, Duration, Utc};
 
@@ -7,14 +7,14 @@ use crate::client::Client;
 #[derive(Debug)]
 pub struct SharedData {
     pub clients: Vec<Client>,
-    pub times: Arc<Mutex<Option<(DateTime<Utc>, Duration)>>>, // (start_time, finish_time)
+    pub times: Mutex<Option<(DateTime<Utc>, Duration)>>, // (start_time, finish_time)
 }
 
 impl SharedData {
     pub fn new(clients: Vec<Client>) -> Self {
         SharedData {
             clients,
-            times: Arc::new(Mutex::new(None)),
+            times: Mutex::new(None),
         }
     }
 

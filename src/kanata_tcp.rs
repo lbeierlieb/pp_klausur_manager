@@ -8,10 +8,7 @@ use std::{
 
 use serde_json::Value;
 
-use crate::{
-    client::Client,
-    shared_data::{self, SharedData},
-};
+use crate::{client::Client, shared_data::SharedData};
 
 const KANATA_PORT: u16 = 5000;
 const KANATA_TCP_TIMEOUT: Duration = Duration::new(1, 0);
