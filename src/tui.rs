@@ -190,37 +190,43 @@ fn render_clients(app: &App, area: Rect, buf: &mut Buffer) {
         .borders(Borders::ALL)
         .border_set(border::THICK);
 
-    let lines = app
-        .shared_data
-        .clients
-        .iter()
-        .map(|client| {
-            Line::from(vec![
-                try_pad_string(
-                    match client.current_layer.lock().unwrap().as_ref() {
-                        Some(layer) => layer.clone(),
-                        None => "  ---".to_string(),
-                    },
-                    ' ',
-                    10,
-                )
-                .yellow(),
-                try_pad_string(client.ip_address.to_string(), ' ', 18).into(),
-                match client.last_timer_access.lock().unwrap().as_ref() {
-                    Some(last_access) => {
-                        let duration = Utc::now() - last_access;
-                        format!(
-                            "{}:{:02}min",
-                            duration.num_minutes(),
-                            duration.num_seconds() % 60
-                        )
+    let mut lines = Vec::new();
+    lines.push(Line::from(vec![
+        "kbd layer  IP address       time since timer request".bold(),
+    ]));
+    lines.append(
+        &mut app
+            .shared_data
+            .clients
+            .iter()
+            .map(|client| {
+                Line::from(vec![
+                    try_pad_string(
+                        match client.current_layer.lock().unwrap().as_ref() {
+                            Some(layer) => layer.clone(),
+                            None => "  ---".to_string(),
+                        },
+                        ' ',
+                        11,
+                    )
+                    .yellow(),
+                    try_pad_string(client.ip_address.to_string(), ' ', 18).into(),
+                    match client.last_timer_access.lock().unwrap().as_ref() {
+                        Some(last_access) => {
+                            let duration = Utc::now() - last_access;
+                            format!(
+                                "{}:{:02}min",
+                                duration.num_minutes(),
+                                duration.num_seconds() % 60
+                            )
+                        }
+                        None => " -".to_string(),
                     }
-                    None => " -".to_string(),
-                }
-                .into(),
-            ])
-        })
-        .collect::<Vec<_>>();
+                    .into(),
+                ])
+            })
+            .collect::<Vec<_>>(),
+    );
     let counter_text = Text::from(lines);
 
     Paragraph::new(counter_text)
