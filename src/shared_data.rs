@@ -2,17 +2,19 @@ use std::sync::Mutex;
 
 use chrono::{DateTime, Duration, Utc};
 
-use crate::client::Client;
+use crate::{client::Client, input_parser::Config};
 
 #[derive(Debug)]
 pub struct SharedData {
+    pub config: Config,
     pub clients: Vec<Client>,
     pub times: Mutex<Option<(DateTime<Utc>, Duration)>>, // (start_time, finish_time)
 }
 
 impl SharedData {
-    pub fn new(clients: Vec<Client>) -> Self {
+    pub fn new(config: Config, clients: Vec<Client>) -> Self {
         SharedData {
+            config,
             clients,
             times: Mutex::new(None),
         }

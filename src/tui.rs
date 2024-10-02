@@ -77,7 +77,8 @@ impl App {
                 // no times stored => timer has not yet been started
                 if times.is_none() {
                     let now = Utc::now();
-                    let duration = Duration::seconds(60 * 90);
+                    let duration =
+                        Duration::minutes(self.shared_data.config.timer_duration_minutes);
                     *times = Some((now, duration));
 
                     enable_keyboards(self.shared_data.clone());
@@ -192,7 +193,7 @@ fn render_clients(app: &App, area: Rect, buf: &mut Buffer) {
 
     let mut lines = Vec::new();
     lines.push(Line::from(vec![
-        "kbd layer  IP address       time since timer request".bold(),
+        "kbd layer  name      IP address       time since timer request".bold(),
     ]));
     lines.append(
         &mut app
@@ -210,6 +211,7 @@ fn render_clients(app: &App, area: Rect, buf: &mut Buffer) {
                         11,
                     )
                     .yellow(),
+                    try_pad_string(client.name.clone(), ' ', 10).into(),
                     try_pad_string(client.ip_address.to_string(), ' ', 18).into(),
                     match client.last_timer_access.lock().unwrap().as_ref() {
                         Some(last_access) => {

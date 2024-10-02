@@ -10,8 +10,8 @@ pub fn start_webserver_thread(shared_data: Arc<SharedData>) {
 }
 
 fn webserver(shared_data: Arc<SharedData>) {
-    // Create a new HTTP server and bind it to localhost:8080
-    let server = Server::http("0.0.0.0:8080").unwrap();
+    let port = shared_data.config.timer_port;
+    let server = Server::http(format!("0.0.0.0:{}", port)).unwrap();
 
     for request in server.incoming_requests() {
         let response = match request.url() {
@@ -26,7 +26,12 @@ fn webserver(shared_data: Arc<SharedData>) {
                     }
                 }
                 let mut response = Response::from_data(
-                    generate_html(shared_data.finish_time_as_unix()).as_bytes(),
+                    generate_html(
+                        shared_data.finish_time_as_unix(),
+                        shared_data.config.timer_webpage_refresh_seconds,
+                        shared_data.config.timer_webpage_refresh_unstarted_seconds,
+                    )
+                    .as_bytes(),
                 );
                 response.add_header(
                     Header::from_bytes(&b"Content-Type"[..], &b"text/html"[..]).unwrap(),
@@ -41,11 +46,15 @@ fn webserver(shared_data: Arc<SharedData>) {
     }
 }
 
-fn generate_html(times: Option<i64>) -> String {
+fn generate_html(
+    times: Option<i64>,
+    refresh_interval_running: u32,
+    refresh_interval_unstarted: u32,
+) -> String {
     let target_time = times.unwrap_or(-1);
     let refresh_delay = match times {
-        Some(_) => 30,
-        None => 3,
+        Some(_) => refresh_interval_running,
+        None => refresh_interval_unstarted,
     };
     format!(
         r#"

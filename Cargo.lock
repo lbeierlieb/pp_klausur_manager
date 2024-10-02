@@ -362,6 +362,7 @@ dependencies = [
  "chrono",
  "crossterm",
  "ratatui",
+ "serde",
  "serde_json",
  "tiny_http",
 ]
