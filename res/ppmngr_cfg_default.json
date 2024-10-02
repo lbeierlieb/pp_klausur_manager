@@ -1,0 +1,94 @@
+{
+  "timer_port": 8080,
+  "timer_duration_minutes": 90,
+  "timer_webpage_refresh_seconds": 30,
+  "timer_webpage_refresh_unstarted_seconds": 3,
+  "kanata_client_scan_interval_seconds": 3,
+  "kanata_tcp_timeout_ms": 500,
+  "kanata_port": 5000,
+  "rooms": [
+    {
+      "name": "dummy",
+      "domain": "",
+      "client_hostnames": [
+        "localhost"
+      ]
+    },
+    {
+      "name": "a001",
+      "domain": ".informatik.uni-wuerzburg.de",
+      "client_hostnames": [
+        "a001-01",
+        "a001-02",
+        "a001-03",
+        "a001-04",
+        "a001-05",
+        "a001-06",
+        "a001-07",
+        "a001-08",
+        "a001-09",
+        "a001-10",
+        "a001-11",
+        "a001-12",
+        "a001-13",
+        "a001-14",
+        "a001-15",
+        "a001-16",
+        "a001-17",
+        "a001-18",
+        "a001-19"
+      ]
+    },
+    {
+      "name": "a002",
+      "domain": ".informatik.uni-wuerzburg.de",
+      "client_hostnames": [
+        "a002-01",
+        "a002-02",
+        "a002-03",
+        "a002-04",
+        "a002-05",
+        "a002-07",
+        "a002-08",
+        "a002-09",
+        "a002-10",
+        "a002-11",
+        "a002-12",
+        "a002-13",
+        "a002-14",
+        "a002-15",
+        "a002-16",
+        "a002-17",
+        "a002-18",
+        "a002-19",
+        "a002-20"
+      ]
+    },
+    {
+      "name": "e40",
+      "domain": ".informatik.uni-wuerzburg.de",
+      "client_hostnames": [
+        "e40-01",
+        "e40-02",
+        "e40-03",
+        "e40-04",
+        "e40-05",
+        "e40-06",
+        "e40-07",
+        "e40-08",
+        "e40-09",
+        "e40-10",
+        "e40-11",
+        "e40-12",
+        "e40-13",
+        "e40-14",
+        "e40-15",
+        "e40-16",
+        "e40-17",
+        "e40-18",
+        "e40-19",
+        "e40-20"
+      ]
+    }
+  ]
+}

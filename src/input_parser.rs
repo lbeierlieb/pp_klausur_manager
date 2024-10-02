@@ -1,7 +1,9 @@
 use serde::Deserialize;
 use std::{
-    fs::read_to_string,
+    fs::{self, read_to_string},
+    io::Write,
     net::{Ipv4Addr, ToSocketAddrs},
+    path::Path,
 };
 
 use crate::client::Client;
@@ -23,6 +25,14 @@ pub struct Room {
     name: String,
     domain: String,
     client_hostnames: Vec<String>,
+}
+
+pub fn get_rooms(config: &Config) -> Vec<&str> {
+    config.rooms.iter().map(|room| room.name.as_str()).collect()
+}
+
+pub fn room_exists(room_name: &str, config: &Config) -> bool {
+    config.rooms.iter().any(|room| room.name == room_name)
 }
 
 pub fn get_ip_addresses_of_room(room_name: &str, config: &Config) -> Option<Vec<Client>> {
@@ -66,4 +76,14 @@ fn resolve_ipv4_addr(hostname: &str) -> Option<Ipv4Addr> {
         }
     }
     None
+}
+
+pub fn create_default_config_if_necessary(path: &str, default_config_content: &str) -> Option<()> {
+    if !Path::new(path).exists() {
+        println!("No config file was found at path '{}'", path);
+        let mut file = fs::File::create(path).ok()?;
+        file.write_all(default_config_content.as_bytes()).ok()?;
+        println!("Default config was created at path '{}'", path);
+    }
+    Some(())
 }
