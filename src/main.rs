@@ -1,17 +1,19 @@
 use std::{env, process::exit, sync::Arc};
 
 use input_parser::{
-    create_default_config_if_necessary, get_ip_addresses_of_room, get_rooms, parse_config,
-    room_exists, Config,
+    create_default_config_if_necessary, get_ip_addresses_of_room, get_rooms,
+    get_symlink_info_of_room, parse_config, room_exists, Config,
 };
 use kanata_tcp::start_client_update_thread;
 use shared_data::SharedData;
+use symlinks::update_symlink_status;
 use timing_webserver::start_webserver_thread;
 
 mod client;
 mod input_parser;
 mod kanata_tcp;
 mod shared_data;
+mod symlinks;
 mod timing_webserver;
 mod tui;
 mod tui_basic;
@@ -34,7 +36,10 @@ fn main() {
     }
     let clients =
         get_ip_addresses_of_room(&room, &config).expect(&format!("Room '{}' does not exist", room));
-    let shared_data = Arc::new(SharedData::new(config, clients));
+    let symlink_info = get_symlink_info_of_room(&room, &config)
+        .expect("this should be safe at this point, can only fail if room would not exist");
+    let shared_data = Arc::new(SharedData::new(config, clients, symlink_info));
+    update_symlink_status(shared_data.clone());
     start_webserver_thread(shared_data.clone());
     start_client_update_thread(shared_data.clone());
     tui::tui_main(shared_data).unwrap();

@@ -24,7 +24,15 @@ pub struct Config {
 pub struct Room {
     name: String,
     domain: String,
+    symlink_info: SymlinkInfo,
     client_hostnames: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct SymlinkInfo {
+    pub symlink_path: String,
+    pub dummy_target: String,
+    pub real_target: String,
 }
 
 pub fn get_rooms(config: &Config) -> Vec<&str> {
@@ -56,6 +64,19 @@ pub fn get_ip_addresses_of_room(room_name: &str, config: &Config) -> Option<Vec<
             .map(|(name, ip)| Client::new(name, ip))
             .collect();
         Some(clients)
+    } else {
+        None
+    }
+}
+
+pub fn get_symlink_info_of_room(room_name: &str, config: &Config) -> Option<SymlinkInfo> {
+    let rooms_with_name = config
+        .rooms
+        .iter()
+        .filter(|room| room.name == room_name)
+        .collect::<Vec<_>>();
+    if rooms_with_name.len() == 1 {
+        Some(rooms_with_name[0].symlink_info.clone())
     } else {
         None
     }

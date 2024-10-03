@@ -10,6 +10,7 @@ use std::{io, iter::repeat, sync::Arc};
 use crate::{
     kanata_tcp::{disable_keyboards, enable_keyboards},
     shared_data::SharedData,
+    symlinks::{lock_taskdescription, unlock_taskdescription},
     tui_basic,
 };
 
@@ -48,10 +49,15 @@ impl App {
     fn render_frame(&mut self, frame: &mut Frame) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Length(3), Constraint::Min(5)])
+            .constraints([
+                Constraint::Length(3),
+                Constraint::Length(3),
+                Constraint::Min(5),
+            ])
             .split(frame.area());
         render_status(self, chunks[0], frame.buffer_mut());
-        render_clients(self, chunks[1], frame.buffer_mut());
+        render_symlinks(self, chunks[1], frame.buffer_mut());
+        render_clients(self, chunks[2], frame.buffer_mut());
     }
 
     /// updates the application's state based on user input
@@ -81,6 +87,7 @@ impl App {
                         Duration::minutes(self.shared_data.config.timer_duration_minutes);
                     *times = Some((now, duration));
 
+                    unlock_taskdescription(self.shared_data.clone());
                     enable_keyboards(self.shared_data.clone());
                 }
             }
@@ -104,6 +111,12 @@ impl App {
             KeyCode::Esc => {
                 enable_keyboards(self.shared_data.clone());
             }
+            KeyCode::Char('d') => {
+                lock_taskdescription(self.shared_data.clone());
+            }
+            KeyCode::Char('r') => {
+                unlock_taskdescription(self.shared_data.clone());
+            }
             _ => {}
         }
     }
@@ -114,7 +127,7 @@ impl App {
 }
 
 fn render_status(app: &App, area: Rect, buf: &mut Buffer) {
-    let title = Title::from(" Status ".bold());
+    let title = Title::from(" Timer ".bold());
     let instructions = match *app.shared_data.times.lock().unwrap() {
         Some(_) => Title::from(vec![
             " +1min".into(),
@@ -122,7 +135,7 @@ fn render_status(app: &App, area: Rect, buf: &mut Buffer) {
             " -1min".into(),
             " <-> ".blue().bold(),
         ]),
-        None => Title::from(vec![" Start Timer".into(), " <Enter> ".blue().bold()]),
+        None => Title::from(vec![" Start exam".into(), " <Enter> ".blue().bold()]),
     };
     let block = Block::default()
         .title(title.alignment(Alignment::Center))
@@ -163,6 +176,42 @@ fn render_status(app: &App, area: Rect, buf: &mut Buffer) {
             ])
         }
         None => Line::from("INACTIVE".red().bold()),
+    };
+
+    Paragraph::new(counter_text)
+        //.centered()
+        .block(block)
+        .render(area, buf);
+}
+
+fn render_symlinks(app: &App, area: Rect, buf: &mut Buffer) {
+    let title = Title::from(" Status ".bold());
+    let instructions = Title::from(vec![
+        " Set to dummy".into(),
+        " <d> ".blue().bold(),
+        " Set to real".into(),
+        " <r> ".blue().bold(),
+    ]);
+    let block = Block::default()
+        .title(title.alignment(Alignment::Center))
+        .title(
+            instructions
+                .alignment(Alignment::Center)
+                .position(block::Position::Bottom),
+        )
+        .borders(Borders::ALL)
+        .border_set(border::THICK);
+
+    let counter_text = match app.shared_data.symlink_target.lock().unwrap().as_ref() {
+        Some(path) => Line::from(vec![
+            "Currently pointing to ".into(),
+            path.clone().yellow().bold(),
+        ]),
+        None => Line::from(vec![
+            "Symlink ".into(),
+            app.shared_data.symlink_info.symlink_path.clone().yellow(),
+            " is not accessible".into(),
+        ]),
     };
 
     Paragraph::new(counter_text)
