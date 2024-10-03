@@ -5,6 +5,7 @@ use input_parser::{
     get_symlink_info_of_room, parse_config, room_exists, Config,
 };
 use kanata_tcp::start_client_update_thread;
+use persistance::get_persisted_time;
 use shared_data::SharedData;
 use symlinks::update_symlink_status;
 use timing_webserver::start_webserver_thread;
@@ -12,6 +13,7 @@ use timing_webserver::start_webserver_thread;
 mod client;
 mod input_parser;
 mod kanata_tcp;
+mod persistance;
 mod shared_data;
 mod symlinks;
 mod timing_webserver;
@@ -38,7 +40,13 @@ fn main() {
         get_ip_addresses_of_room(&room, &config).expect(&format!("Room '{}' does not exist", room));
     let symlink_info = get_symlink_info_of_room(&room, &config)
         .expect("this should be safe at this point, can only fail if room would not exist");
-    let shared_data = Arc::new(SharedData::new(config, clients, symlink_info));
+    let persisted_time = get_persisted_time();
+    let shared_data = Arc::new(SharedData::new(
+        config,
+        clients,
+        symlink_info,
+        persisted_time,
+    ));
     update_symlink_status(shared_data.clone());
     start_webserver_thread(shared_data.clone());
     start_client_update_thread(shared_data.clone());

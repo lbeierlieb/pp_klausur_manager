@@ -17,11 +17,16 @@ pub struct SharedData {
 }
 
 impl SharedData {
-    pub fn new(config: Config, clients: Vec<Client>, symlink_info: SymlinkInfo) -> Self {
+    pub fn new(
+        config: Config,
+        clients: Vec<Client>,
+        symlink_info: SymlinkInfo,
+        times: Option<(DateTime<Utc>, Duration)>,
+    ) -> Self {
         SharedData {
             config,
             clients,
-            times: Mutex::new(None),
+            times: Mutex::new(times),
             symlink_info,
             symlink_target: Mutex::new(None),
         }
