@@ -9,6 +9,7 @@ use std::{io, iter::repeat, sync::Arc};
 
 use crate::{
     kanata_tcp::{disable_keyboards, enable_keyboards},
+    persistance::{delete_persisted_time, persist_time},
     shared_data::SharedData,
     symlinks::{lock_taskdescription, unlock_taskdescription},
     tui_basic,
@@ -77,7 +78,10 @@ impl App {
 
     fn handle_key_event(&mut self, key_event: KeyEvent) {
         match key_event.code {
-            KeyCode::Char('q') => self.exit(),
+            KeyCode::Char('q') => {
+                delete_persisted_time();
+                self.exit();
+            }
             KeyCode::Enter => {
                 let mut times = self.shared_data.times.lock().unwrap();
                 // no times stored => timer has not yet been started
@@ -89,20 +93,25 @@ impl App {
 
                     unlock_taskdescription(self.shared_data.clone());
                     enable_keyboards(self.shared_data.clone());
+                    persist_time(now, duration);
                 }
             }
             KeyCode::Char('+') => {
                 let mut times = self.shared_data.times.lock().unwrap();
                 if times.is_some() {
                     let (start_time, duration) = times.unwrap();
-                    *times = Some((start_time, duration + Duration::minutes(1)))
+                    let new_duration = duration + Duration::minutes(1);
+                    *times = Some((start_time, new_duration));
+                    persist_time(start_time, new_duration);
                 }
             }
             KeyCode::Char('-') => {
                 let mut times = self.shared_data.times.lock().unwrap();
                 if times.is_some() {
                     let (start_time, duration) = times.unwrap();
-                    *times = Some((start_time, duration - Duration::minutes(1)))
+                    let new_duration = duration - Duration::minutes(1);
+                    *times = Some((start_time, new_duration));
+                    persist_time(start_time, new_duration);
                 }
             }
             KeyCode::Char(' ') => {
