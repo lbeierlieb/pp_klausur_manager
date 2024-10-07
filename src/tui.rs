@@ -92,7 +92,6 @@ impl App {
                     *times = Some((now, duration));
 
                     unlock_taskdescription(self.shared_data.clone());
-                    enable_keyboards(self.shared_data.clone());
                     persist_time(now, duration);
                 }
             }
