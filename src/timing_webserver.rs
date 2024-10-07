@@ -28,6 +28,7 @@ fn webserver(shared_data: Arc<SharedData>) {
                 let mut response = Response::from_data(
                     generate_html(
                         shared_data.finish_time_as_unix(),
+                        shared_data.config.timer_duration_minutes,
                         shared_data.config.timer_webpage_refresh_seconds,
                         shared_data.config.timer_webpage_refresh_unstarted_seconds,
                     )
@@ -48,6 +49,7 @@ fn webserver(shared_data: Arc<SharedData>) {
 
 fn generate_html(
     times: Option<i64>,
+    default_time: i64,
     refresh_interval_running: u32,
     refresh_interval_unstarted: u32,
 ) -> String {
@@ -95,13 +97,13 @@ fn generate_html(
                     const distance = targetDate - now;
 
                     if (targetDate == -1) {{
-                        text = "not started";
+                        text = "Time left: {}min 0s";
                     }} else if (distance < 0) {{
                         text = "time is up!";
                     }} else {{
                         const minutes = Math.floor(distance / 60);
                         const seconds = Math.floor((distance % 60));
-                        text = minutes + "m " + seconds + "s";
+                        text = "Time left: " + minutes + "m " + seconds + "s";
                     }}
 
                     document.getElementById("countdown").innerHTML = text;
@@ -112,6 +114,6 @@ fn generate_html(
         </body>
         </html>
         "#,
-        refresh_delay, target_time
+        refresh_delay, target_time, default_time
     )
 }
