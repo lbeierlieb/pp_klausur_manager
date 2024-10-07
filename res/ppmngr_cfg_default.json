@@ -16,8 +16,10 @@
         "real_target": "taskdescription_localtest/SRC"
       },
       "client_hostnames": [
-        "localhost"
-      ]
+        "localhost",
+        "thisissomehost"
+      ],
+      "control_client": "thisissomehost"
     },
     {
       "name": "a001",
@@ -46,8 +48,10 @@
         "a001-16",
         "a001-17",
         "a001-18",
-        "a001-19"
-      ]
+        "a001-19",
+        "a001-20"
+      ],
+      "control_client": "a001-20"
     },
     {
       "name": "a002",
@@ -63,6 +67,7 @@
         "a002-03",
         "a002-04",
         "a002-05",
+        "a002-06",
         "a002-07",
         "a002-08",
         "a002-09",
@@ -77,7 +82,8 @@
         "a002-18",
         "a002-19",
         "a002-20"
-      ]
+      ],
+      "control_client": "a002-06"
     },
     {
       "name": "e40",
@@ -107,8 +113,10 @@
         "e40-17",
         "e40-18",
         "e40-19",
+        "e40-20",
         "e40-20"
-      ]
+      ],
+      "control_client":  "e40-20"
     }
   ]
 }

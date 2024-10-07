@@ -26,6 +26,7 @@ pub struct Room {
     domain: String,
     symlink_info: SymlinkInfo,
     client_hostnames: Vec<String>,
+    control_client: String,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -51,7 +52,12 @@ pub fn get_ip_addresses_of_room(room_name: &str, config: &Config) -> Option<Vec<
         .collect::<Vec<_>>();
     if rooms_with_name.len() == 1 {
         let room = rooms_with_name[0];
-        let hostnames = room.client_hostnames.clone();
+        let hostnames = room
+            .client_hostnames
+            .iter()
+            .filter(|hostname| **hostname != room.control_client)
+            .map(|hostname| hostname.to_owned())
+            .collect::<Vec<_>>();
         let ips = hostnames
             .into_iter()
             .map(|hostname_short| {
@@ -84,7 +90,13 @@ pub fn get_symlink_info_of_room(room_name: &str, config: &Config) -> Option<Syml
 
 pub fn parse_config(config_path: &str) -> Option<Config> {
     let filecontent = read_to_string(config_path).ok()?;
-    serde_json::from_str(&filecontent).ok()
+    let config: Config = serde_json::from_str(&filecontent).ok()?;
+    for room in &config.rooms {
+        if !room.client_hostnames.contains(&room.control_client) {
+            return None;
+        }
+    }
+    Some(config)
 }
 
 fn resolve_ipv4_addr(hostname: &str) -> Option<Ipv4Addr> {
