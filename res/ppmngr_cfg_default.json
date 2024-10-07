@@ -24,8 +24,8 @@
       "domain": ".informatik.uni-wuerzburg.de",
       "symlink_info": {
         "symlink_path": "/HOME/system/aufgabentext/a001",
-        "dummy_target": "/HOME/system/aufgabentext/SRC",
-        "real_target": "/HOME/system/aufgabentext/TMP"
+        "dummy_target": "/HOME/system/aufgabentext/TMP",
+        "real_target": "/HOME/system/aufgabentext/SRC"
       },
       "client_hostnames": [
         "a001-01",
@@ -54,8 +54,8 @@
       "domain": ".informatik.uni-wuerzburg.de",
       "symlink_info": {
         "symlink_path": "/HOME/system/aufgabentext/a002",
-        "dummy_target": "/HOME/system/aufgabentext/SRC",
-        "real_target": "/HOME/system/aufgabentext/TMP"
+        "dummy_target": "/HOME/system/aufgabentext/TMP",
+        "real_target": "/HOME/system/aufgabentext/SRC"
       },
       "client_hostnames": [
         "a002-01",
@@ -84,8 +84,8 @@
       "domain": ".informatik.uni-wuerzburg.de",
       "symlink_info": {
         "symlink_path": "/HOME/system/aufgabentext/e40",
-        "dummy_target": "/HOME/system/aufgabentext/SRC",
-        "real_target": "/HOME/system/aufgabentext/TMP"
+        "dummy_target": "/HOME/system/aufgabentext/TMP",
+        "real_target": "/HOME/system/aufgabentext/SRC"
       },
       "client_hostnames": [
         "e40-01",
