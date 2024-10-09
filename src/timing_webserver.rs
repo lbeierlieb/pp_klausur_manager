@@ -3,7 +3,7 @@ use std::{sync::Arc, thread};
 use chrono::Utc;
 use tiny_http::{Header, Response, Server};
 
-use crate::shared_data::SharedData;
+use crate::{nonclient_timeraccess::NonclientTimerAccess, shared_data::SharedData};
 
 pub fn start_webserver_thread(shared_data: Arc<SharedData>) {
     thread::spawn(|| webserver(shared_data));
@@ -16,15 +16,33 @@ fn webserver(shared_data: Arc<SharedData>) {
     for request in server.incoming_requests() {
         let response = match request.url() {
             "/" => {
-                // store latest access in client
+                // store access time
                 let mut is_valid_client = false;
                 if let Some(std::net::SocketAddr::V4(sockaddr)) = request.remote_addr() {
                     let remote_ip = sockaddr.ip();
+                    let now = Utc::now();
+                    let mut time_stored = false;
+                    // check if request comes from registered client
                     for client in &shared_data.clients {
                         if client.ip_address.eq(remote_ip) {
-                            *client.last_timer_access.lock().unwrap() = Some(Utc::now());
+                            *client.last_timer_access.lock().unwrap() = Some(now);
                             is_valid_client = true;
+                            time_stored = true;
                         }
+                    }
+                    // check if request comes from unregistered address that requested before
+                    if !time_stored {
+                        for nonclient in shared_data.nonclients.lock().unwrap().iter_mut() {
+                            if nonclient.ip_address.eq(remote_ip) {
+                                nonclient.last_timer_access = now;
+                                time_stored = true;
+                            }
+                        }
+                    }
+                    // ip address has never requested timer before, create new nonclient to track
+                    if !time_stored {
+                        let new_nonclient = NonclientTimerAccess::new(remote_ip.clone(), now);
+                        shared_data.nonclients.lock().unwrap().push(new_nonclient);
                     }
                 }
                 let mut response =

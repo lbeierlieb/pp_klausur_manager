@@ -13,6 +13,7 @@ use timing_webserver::start_webserver_thread;
 mod client;
 mod input_parser;
 mod kanata_tcp;
+mod nonclient_timeraccess;
 mod persistance;
 mod shared_data;
 mod symlinks;

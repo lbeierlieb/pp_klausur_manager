@@ -5,12 +5,14 @@ use chrono::{DateTime, Duration, Utc};
 use crate::{
     client::Client,
     input_parser::{Config, SymlinkInfo},
+    nonclient_timeraccess::NonclientTimerAccess,
 };
 
 #[derive(Debug)]
 pub struct SharedData {
     pub config: Config,
     pub clients: Vec<Client>,
+    pub nonclients: Mutex<Vec<NonclientTimerAccess>>,
     pub times: Mutex<Option<(DateTime<Utc>, Duration)>>,
     pub symlink_info: SymlinkInfo,
     pub symlink_target: Mutex<Option<String>>,
@@ -26,6 +28,7 @@ impl SharedData {
         SharedData {
             config,
             clients,
+            nonclients: Mutex::new(Vec::new()),
             times: Mutex::new(times),
             symlink_info,
             symlink_target: Mutex::new(None),
