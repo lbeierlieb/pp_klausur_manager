@@ -17,23 +17,30 @@ fn webserver(shared_data: Arc<SharedData>) {
         let response = match request.url() {
             "/" => {
                 // store latest access in client
+                let mut is_valid_client = false;
                 if let Some(std::net::SocketAddr::V4(sockaddr)) = request.remote_addr() {
                     let remote_ip = sockaddr.ip();
                     for client in &shared_data.clients {
                         if client.ip_address.eq(remote_ip) {
                             *client.last_timer_access.lock().unwrap() = Some(Utc::now());
+                            is_valid_client = true;
                         }
                     }
                 }
-                let mut response = Response::from_data(
-                    generate_html(
-                        shared_data.finish_time_as_unix(),
-                        shared_data.config.timer_duration_minutes,
-                        shared_data.config.timer_webpage_refresh_seconds,
-                        shared_data.config.timer_webpage_refresh_unstarted_seconds,
-                    )
-                    .as_bytes(),
-                );
+                let mut response =
+                    if is_valid_client || shared_data.config.timer_allow_nonclient_access {
+                        Response::from_data(
+                            generate_html(
+                                shared_data.finish_time_as_unix(),
+                                shared_data.config.timer_duration_minutes,
+                                shared_data.config.timer_webpage_refresh_seconds,
+                                shared_data.config.timer_webpage_refresh_unstarted_seconds,
+                            )
+                            .as_bytes(),
+                        )
+                    } else {
+                        Response::from_data(generate_html_illegal_access().as_bytes())
+                    };
                 response.add_header(
                     Header::from_bytes(&b"Content-Type"[..], &b"text/html"[..]).unwrap(),
                 );
@@ -116,4 +123,37 @@ fn generate_html(
         "#,
         refresh_delay, target_time, default_time
     )
+}
+
+fn generate_html_illegal_access() -> String {
+    r#"
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Illegal Access!</title>
+        <style>
+            body {
+                color: white;
+                text-align: center;
+                font-size: 50px;
+                font-family: Arial, sans-serif;
+                margin-top: 20%;
+                animation: blink-bg 1s infinite;
+            }
+
+            @keyframes blink-bg {
+                0% { background-color: black; }
+                50% { background-color: red; }
+                100% { background-color: black; }
+            }
+        </style>
+    </head>
+    <body>
+        <div>Illegal Access!</div>
+    </body>
+    </html>
+    "#
+    .to_string()
 }
