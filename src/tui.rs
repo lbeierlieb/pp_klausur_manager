@@ -286,6 +286,32 @@ fn render_clients(app: &App, area: Rect, buf: &mut Buffer) {
             })
             .collect::<Vec<_>>(),
     );
+    if app.shared_data.config.tui_show_nonclient_timer_accesses {
+        lines.append(
+            &mut app
+                .shared_data
+                .nonclients
+                .lock()
+                .unwrap()
+                .iter()
+                .map(|nonclient| {
+                    Line::from(vec![
+                        "                     ".into(),
+                        try_pad_string(nonclient.ip_address.to_string(), ' ', 18).into(),
+                        {
+                            let duration = Utc::now() - nonclient.last_timer_access;
+                            format!(
+                                "{}:{:02}min",
+                                duration.num_minutes(),
+                                duration.num_seconds() % 60
+                            )
+                        }
+                        .into(),
+                    ])
+                })
+                .collect::<Vec<_>>(),
+        );
+    }
     let counter_text = Text::from(lines);
 
     Paragraph::new(counter_text)
