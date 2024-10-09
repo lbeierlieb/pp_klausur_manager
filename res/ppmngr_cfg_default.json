@@ -3,9 +3,11 @@
   "timer_duration_minutes": 90,
   "timer_webpage_refresh_seconds": 30,
   "timer_webpage_refresh_unstarted_seconds": 3,
+  "timer_allow_nonclient_access": false,
   "kanata_client_scan_interval_seconds": 3,
   "kanata_tcp_timeout_ms": 500,
   "kanata_port": 5000,
+  "tui_show_nonclient_timer_accesses": true,
   "rooms": [
     {
       "name": "dummy",

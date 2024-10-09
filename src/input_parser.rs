@@ -14,9 +14,11 @@ pub struct Config {
     pub timer_duration_minutes: i64,
     pub timer_webpage_refresh_seconds: u32,
     pub timer_webpage_refresh_unstarted_seconds: u32,
+    pub timer_allow_nonclient_access: bool,
     pub kanata_client_scan_interval_seconds: u64,
     pub kanata_tcp_timeout_ms: u64,
     pub kanata_port: u16,
+    pub tui_show_nonclient_timer_accesses: bool,
     rooms: Vec<Room>,
 }
 
