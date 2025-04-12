@@ -31,6 +31,16 @@ pkgs.nixosTest {
   };
   nodes.client1 = { config, pkgs, ... }: {
     imports = [ common ];
+    systemd.services.my-service = {
+      description = "kanata service";
+
+      wantedBy = [ "multi-user.target" ];
+
+      serviceConfig = {
+        ExecStart = "${pkgs.lib.getExe pkgs.kanata} -c ${./../kanata.cfg} -p 0.0.0.0:5000";
+        Restart = "always";
+      };
+    };
   };
   testScript = "";
 }
