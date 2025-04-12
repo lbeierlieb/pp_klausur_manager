@@ -4,7 +4,6 @@ let
     users.users.nixos = {
       isNormalUser  = true;
       home  = "/home/nixos";
-      extraGroups  = [ "wheel" ];
       initialPassword = "nixos";
     };
     system.stateVersion = "24.11";
