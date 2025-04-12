@@ -41,6 +41,11 @@ pkgs.nixosTest {
         Restart = "always";
       };
     };
+    services.cage = {
+      enable = true;
+      user = "nixos";
+      program = "${pkgs.lib.getExe pkgs.firefox} http://control-machine:8080";
+    };
   };
   testScript = "";
 }
