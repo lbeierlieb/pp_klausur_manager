@@ -1,9 +1,9 @@
 { pkgs }:
 let
-  common = {config, pkgs, ... }: {
+  common = { config, pkgs, ... }: {
     users.users.nixos = {
-      isNormalUser  = true;
-      home  = "/home/nixos";
+      isNormalUser = true;
+      home = "/home/nixos";
       initialPassword = "nixos";
     };
     system.stateVersion = "24.11";
