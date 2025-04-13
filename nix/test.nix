@@ -60,7 +60,7 @@ pkgs.nixosTest {
     services.cage = {
       enable = true;
       user = "nixos";
-      program = "${pkgs.lib.getExe pkgs.firefox} http://control-machine:8080";
+      program = "${pkgs.lib.getExe pkgs.firefox} file:///nfs/task_description.html http://control-machine:8080";
     };
     systemd.services.custom-nfs-mount = {
       description = "nfs mounting";
