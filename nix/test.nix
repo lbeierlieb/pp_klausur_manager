@@ -28,6 +28,22 @@ pkgs.nixosTest {
       '')
     ];
     environment.etc."ppmngr_cfg.json".source = ./ppmngr_cfg.json;
+    environment.etc."real_task.html".source = ./../taskdescription_localtest/SRC/index.html;
+    environment.etc."tmp_task.html".source = ./../taskdescription_localtest/TMP/index.html;
+    systemd.tmpfiles.rules = [
+      "d /nfs 0755 root root -"
+      "L /nfs/task_description.html - - - - /nfs/tmp_task.html"
+    ];
+    systemd.services.custom-nfs-mount = {
+      description = "nfs mounting";
+      wantedBy = [ "multi-user.target" ];
+      script = "cp /etc/real_task.html /nfs && cp /etc/tmp_task.html /nfs";
+      serviceConfig.Type = "oneshot";
+    };
+    services.nfs.server.enable = true;
+    services.nfs.server.exports = ''
+      /nfs  *(rw,no_subtree_check,no_root_squash,fsid=0)
+    '';
   };
   nodes.client1 = { config, pkgs, ... }: {
     imports = [ common ];
