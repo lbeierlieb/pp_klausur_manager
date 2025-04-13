@@ -74,5 +74,9 @@ pkgs.nixosTest {
       "d /nfs 0755 root root -"
     ];
   };
-  testScript = "";
+  testScript = ''
+    control_machine.start()
+    control_machine.wait_for_unit("nfs-server.service")
+    start_all()
+  '';
 }
