@@ -31,7 +31,7 @@ pkgs.nixosTest {
     environment.etc."real_task.html".source = ./../taskdescription_localtest/SRC/index.html;
     environment.etc."tmp_task.html".source = ./../taskdescription_localtest/TMP/index.html;
     systemd.tmpfiles.rules = [
-      "d /nfs 0755 root root -"
+      "d /nfs 0755 nixos users -"
       "L /nfs/task_description.html - - - - /nfs/tmp_task.html"
     ];
     systemd.services.custom-nfs-mount = {
