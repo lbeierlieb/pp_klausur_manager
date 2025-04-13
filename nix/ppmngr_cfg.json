@@ -13,9 +13,9 @@
       "name": "test",
       "domain": "",
       "symlink_info": {
-        "symlink_path": "taskdescription_localtest/symlink",
-        "dummy_target": "taskdescription_localtest/TMP",
-        "real_target": "taskdescription_localtest/SRC"
+        "symlink_path": "/nfs/task_description.html",
+        "dummy_target": "/nfs/tmp_task.html",
+        "real_target": "/nfs/real_task.html"
       },
       "client_hostnames": [
         "client1",
