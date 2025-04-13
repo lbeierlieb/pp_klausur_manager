@@ -62,6 +62,17 @@ pkgs.nixosTest {
       user = "nixos";
       program = "${pkgs.lib.getExe pkgs.firefox} http://control-machine:8080";
     };
+    systemd.services.custom-nfs-mount = {
+      description = "nfs mounting";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network-online.target" ];
+      script = "${pkgs.util-linux}/bin/mount control-machine:/nfs /nfs";
+      serviceConfig.Type = "oneshot";
+    };
+    boot.supportedFilesystems = [ "nfs" ];
+    systemd.tmpfiles.rules = [
+      "d /nfs 0755 root root -"
+    ];
   };
   testScript = "";
 }
