@@ -1,4 +1,6 @@
-{ config, pkgs, ... }: {
+{ ... }: {
+    virtualisation.memorySize = 2048;
+    virtualisation.cores = 2;
     users.users.nixos = {
       isNormalUser = true;
       home = "/home/nixos";
