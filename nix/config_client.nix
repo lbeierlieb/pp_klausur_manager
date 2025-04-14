@@ -13,14 +13,14 @@
     services.cage = {
       enable = true;
       user = "nixos";
-      program = "${pkgs.lib.getExe pkgs.firefox} file:///nfs/task_description.html http://control-machine:8080";
+      program = "${pkgs.lib.getExe pkgs.firefox} file:///nfs/task_description.html http://controlmachine:8080";
     };
     systemd.services.custom-nfs-mount = {
       description = "nfs mounting";
       wantedBy = [ "multi-user.target" ];
       after = [ "network-online.target" ];
       requires = [ "network-online.target" ];
-      script = "${pkgs.util-linux}/bin/mount control-machine:/nfs /nfs";
+      script = "${pkgs.util-linux}/bin/mount controlmachine:/nfs /nfs";
       serviceConfig.Type = "oneshot";
     };
     boot.supportedFilesystems = [ "nfs" ];
