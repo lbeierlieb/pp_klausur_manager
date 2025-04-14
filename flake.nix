@@ -19,6 +19,7 @@
         # For `nix build` & `nix run`:
         defaultPackage = naersk'.buildPackage {
           src = ./.;
+          meta.mainProgram = "pp_klausur_manager";
         };
 
         # For `nix develop`:
