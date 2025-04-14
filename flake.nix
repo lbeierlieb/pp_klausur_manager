@@ -27,7 +27,7 @@
         };
 
         checks = {
-          test = pkgs.callPackage ./nix/test.nix { pp_klausur_manager = self.outputs.defaultPackage.${system}; };
+          virtual-exam-computer-pool = pkgs.callPackage ./nix/test.nix { pp_klausur_manager = self.outputs.defaultPackage.${system}; };
         };
       }
     );
