@@ -19,6 +19,7 @@
       description = "nfs mounting";
       wantedBy = [ "multi-user.target" ];
       after = [ "network-online.target" ];
+      requires = [ "network-online.target" ];
       script = "${pkgs.util-linux}/bin/mount control-machine:/nfs /nfs";
       serviceConfig.Type = "oneshot";
     };
