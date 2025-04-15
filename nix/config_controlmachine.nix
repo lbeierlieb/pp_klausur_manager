@@ -5,7 +5,7 @@
     user = "nixos";
     program = "${pkgs.lib.getExe pkgs.alacritty} -o font.normal.family=\\\"\"JetBrainsMono Nerd Font\\\"\" -e ppmngr_launch";
   };
-  fonts.packages = [ (pkgs.nerdfonts.override { fonts = [ "JetBrainsMono" ]; }) ];
+  fonts.packages = [ pkgs.nerd-fonts.jetbrains-mono ];
   environment.systemPackages = [
     (pkgs.writeScriptBin "ppmngr_launch" ''
       cd /home/nixos/
