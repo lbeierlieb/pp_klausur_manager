@@ -12,17 +12,23 @@
           inherit system;
         };
 
-        naersk' = pkgs.callPackage naersk {};
+        naersk' = pkgs.callPackage naersk { };
 
-      in rec {
+      in
+      {
         # For `nix build` & `nix run`:
         defaultPackage = naersk'.buildPackage {
           src = ./.;
+          meta.mainProgram = "pp_klausur_manager";
         };
 
         # For `nix develop`:
         devShell = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [ rustc cargo ];
+        };
+
+        checks = {
+          virtual-exam-computer-pool = pkgs.callPackage ./nix/test.nix { pp_klausur_manager = self.outputs.defaultPackage.${system}; };
         };
       }
     );
