@@ -4,12 +4,17 @@ A tool to help organize the exams of the Programmierpraktikum.
 
 ## How to run
 
-You can execute the program directly with the command:
+In the checked out repository, you can execute the `pp_klausur_manager` directly with the command:
 ```
-nix run 'git+https://gitlab2.informatik.uni-wuerzburg.de/pp-tools/pp_klausur_manager.git' -- <room>
+$ nix run -- <room>
 ```
-Alternatively, adding the program to the current shell:
+For a Rust development shell to compile the program yourself, run:
 ```
-nix shell 'git+https://gitlab2.informatik.uni-wuerzburg.de/pp-tools/pp_klausur_manager.git'
-pp_klausur_manager <room>
+$ nix develop
+$ cargo build
+```
+To spin up a virtual testing environment consisting of one control machine and three student computers, execute:
+```
+$ nix run .#checks.x86_64-linux.virtual-exam-computer-pool.driverInteractive
+>>> test_script()
 ```
